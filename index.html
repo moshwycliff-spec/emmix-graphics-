@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmix Graphics | Uganda's Branding Partner</title>
+    <style>
+        /* --- SMOOTH SCROLL & THEME VARIABLES --- */
+        html { scroll-behavior: smooth; }
+
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --primary: #e67e22; 
+            --secondary: #f0f2f5;
+            --nav-overlay: rgba(255, 255, 255, 0.98);
+            --card-bg: #ffffff;
+            --border: #e1e1e1;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --primary: #fb923c;
+            --secondary: #1e293b;
+            --nav-overlay: rgba(15, 23, 42, 0.98);
+            --card-bg: #1e293b;
+            --border: #334155;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); transition: var(--transition); overflow-x: hidden; line-height: 1.6; }
+
+        /* --- UI CONTROLS & NEW SLIDER --- */
+        .ui-controls {
+            position: fixed; top: 25px; left: 0; width: 100%; 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 25px; z-index: 2000; pointer-events: none;
+        }
+        .ui-controls button, .theme-switch-wrapper { pointer-events: auto; }
+
+        /* Modern Toggle Switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--secondary);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 30px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input { display: none; }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5px;
+            font-size: 14px;
+        }
+
+        .slider:before {
+            background-color: white;
+            bottom: 3px;
+            content: "";
+            height: 24px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 24px;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(28px); }
+
+        /* Icon styling inside slider */
+        .slider .sun { color: #f39c12; }
+        .slider .moon { color: #f1c40f; }
+
+        .menu-toggle {
+            background: var(--primary); color: white; border: none;
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- FULL SCREEN NAV --- */
+        .full-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--nav-overlay); z-index: 1500;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        .full-nav.open { transform: translateY(0); }
+        .full-nav a {
+            font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; margin: 15px 0;
+            text-decoration: none; color: var(--text); transition: 0.3s;
+        }
+        .full-nav a:hover { color: var(--primary); }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 25px; }
+        header { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; background: #1a1a1a; color: white; }
+        section { padding: 100px 0; }
+        .section-title { text-align: center; margin-bottom: 50px; font-size: 2.5rem; }
+
+        /* --- GRID SYSTEM --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* --- SERVICE CARDS --- */
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .product-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--primary);
+        }
+
+        .card-img-container { width: 100%; height: 250px; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-card:hover .card-img { transform: scale(1.1); }
+        .card-info { padding: 25px; text-align: center; }
+        .card-info h3 { margin-bottom: 10px; font-size: 1.3rem; color: var(--primary); }
+        .card-info p { font-size: 0.95rem; color: var(--text); opacity: 0.8; }
+
+        /* --- CONTACT --- */
+        .contact-box { background: var(--primary); color: white; padding: 60px; border-radius: 30px; text-align: center; }
+        input, textarea { width: 100%; padding: 15px; border-radius: 8px; border: none; margin-top: 10px; margin-bottom: 15px; }
+        .action-btn { padding: 15px 35px; border-radius: 50px; font-weight: bold; cursor: pointer; border: 2px solid white; transition: 0.3s; }
+        .action-btn:hover { background: white; color: var(--primary); }
+
+        /* --- ANIMATIONS --- */
+        .reveal { opacity: 0; transform: translateY(40px); transition: 1s all ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="ui-controls">
+        <div class="theme-switch-wrapper">
+            <span style="font-size: 12px; font-weight: bold;">MODE</span>
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider">
+                    <span class="moon">🌙</span>
+                    <span class="sun">☀️</span>
+                </div>
+            </label>
+        </div>
+        <button class="menu-toggle" id="menu-btn">☰</button>
+    </div>
+
+    <nav class="full-nav" id="full-nav">
+        <a href="#home">HOME</a>
+        <a href="#about">ABOUT</a>
+        <a href="#services">OUR SERVICES</a>
+        <a href="#contact">CONTACT</a>
+    </nav>
+
+    <header id="home">
+        <div class="container">
+            <h1 style="font-size: clamp(3rem, 10vw, 5rem); letter-spacing: -2px;">EMMIX GRAPHICS</h1>
+            <p style="font-size: 1.5rem; opacity: 0.9;">Leading Branding & Design Solutions in Uganda</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="about" class="reveal">
+            <h2 class="section-title">Who We Are</h2>
+            <p style="text-align: center; font-size: 1.2rem; max-width: 800px; margin: 0 auto;">
+                Emmix Graphics is your premier destination for high-impact visual branding. Based in Kampala, we specialize in high-quality production for SMEs, ensuring your brand stands out in a crowded market.
+            </p>
+        </section>
+
+        <section id="services" class="reveal">
+            <h2 class="section-title">Services Offered</h2>
+
+            <div style="text-align:center; margin-bottom: 40px;">
+                <h3>Digital & Screen Printing</h3>
+                <div style="width: 60px; height: 4px; background: var(--primary); margin: 10px auto; border-radius: 5px;"></div>
+            </div>
+
+            <div class="grid">
+                <div class="product-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=600" alt="Vehicle Branding" class="card-img">
+                    </div>
+                    <div class="card-info">
+                        <h3>Vehicle Branding</h3>
+                        <p>Turn your fleet into moving billboards with our high-grade vinyl wraps.</p>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1562564055-71e051d33c19?q=80&w=600" alt="Screen Printing" class="card-img">
+                    </div>
+                    <div class="card-info">
+                        <h3>Screen Printing</h3>
+                        <p>Quality apparel printing for staff uniforms, events, and sports teams.</p>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=600" alt="Large Format" class="card-img">
+                    </div>
+                    <div class="card-info">
+                        <h3>Large Format</h3>
+                        <p>Pull-up banners, teardrops, and billboard posters for maximum visibility.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="reveal">
+            <div class="contact-box">
+                <h2>Ready to Start Your Project?</h2>
+                <div style="max-width: 500px; margin: 30px auto; text-align: left;">
+                    <input type="text" id="name" placeholder="Full Name">
+                    <textarea id="msg" rows="4" placeholder="Describe what you need..."></textarea>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="sendWA()" class="action-btn" style="background:#25D366; color:white; border:none;">WhatsApp Us</button>
+                        <button onclick="sendEmail()" class="action-btn" style="background:white; color:var(--primary);">Send Email</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 60px 20px; opacity: 0.6; font-size: 0.9rem; border-top: 1px solid var(--border);">
+        &copy; 2025 Emmix Graphics Uganda.
+    </footer>
+
+    <script>
+        // --- NAVIGATION ---
+        const menuBtn = document.getElementById('menu-btn');
+        const fullNav = document.getElementById('full-nav');
+        
+        menuBtn.addEventListener('click', () => {
+            const isOpen = fullNav.classList.toggle('open');
+            menuBtn.innerText = isOpen ? '✕' : '☰';
+        });
+
+        document.querySelectorAll('.full-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                fullNav.classList.remove('open');
+                menuBtn.innerText = '☰';
+            });
+        });
+
+        // --- NEW SLIDER THEME SWITCHER ---
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.body.setAttribute('data-theme', 'dark');
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+            }    
+        }
+        toggleSwitch.addEventListener('change', switchTheme, false);
+
+        // --- CONTACT ACTIONS ---
+        function sendWA() {
+            const name = document.getElementById('name').value || "Customer";
+            const msg = document.getElementById('msg').value || "Inquiry";
+            window.open(`https://wa.me/256700000000?text=Hi, I am ${name}. ${msg}`, '_blank');
+        }
+        function sendEmail() {
+            const name = document.getElementById('name').value || "Customer";
+            const msg = document.getElementById('msg').value;
+            window.location.href = `mailto:info@emmixgraphics.com?subject=Inquiry from ${name}&body=${msg}`;
+        }
+
+        // --- SCROLL REVEAL ---
+        const reveal = () => {
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active');
+            });
+        };
+        window.addEventListener('scroll', reveal);
+        reveal();
+    </script>
+</body>
+</html>
